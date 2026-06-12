@@ -121,6 +121,97 @@ func main() {
 }
 ```
 
+## Supported Backends
+
+The stats package supports multiple metric backends out of the box:
+
+### OpenTelemetry (OTLP)
+
+The [github.com/segmentio/stats/v5/otlp](https://pkg.go.dev/github.com/segmentio/stats/v5/otlp) package provides full OpenTelemetry Protocol (OTLP) support using the official OpenTelemetry SDK.
+
+**Features:**
+
+- gRPC and HTTP/Protobuf transports
+- Full support for OTEL_* environment variables
+- Automatic resource detection (cloud, Kubernetes, host, process)
+- Production-ready with official OTel SDK exporters
+
+```go
+import (
+    "context"
+    "github.com/segmentio/stats/v5"
+    "github.com/segmentio/stats/v5/otlp"
+)
+
+func main() {
+    ctx := context.Background()
+
+    // Using gRPC (recommended). Note the field is EndpointURL, not Endpoint,
+    // and the value must include the scheme.
+    handler, err := otlp.NewSDKHandler(ctx, otlp.SDKConfig{
+        Protocol:    otlp.ProtocolGRPC,
+        EndpointURL: "http://localhost:4317",
+    })
+    if err != nil {
+        panic(err)
+    }
+    defer handler.Shutdown(ctx)
+
+    stats.Register(handler)
+    defer stats.Flush()
+
+    // Or configure everything from environment variables (simplest). Note this
+    // example changes two things relative to the one above: it moves the
+    // configuration from in-code to env vars, AND it switches the transport
+    // from gRPC to HTTP/protobuf.
+    // export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+    // export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+    handler, err = otlp.NewSDKHandlerFromEnv(ctx)
+}
+```
+
+See the [otlp package documentation](./otlp/README.md) for complete details.
+
+### Datadog
+
+The [github.com/segmentio/stats/v5/datadog](https://godoc.org/github.com/segmentio/stats/v5/datadog) package provides support for sending metrics to Datadog via DogStatsD protocol over UDP or Unix Domain Sockets.
+
+```go
+import "github.com/segmentio/stats/v5/datadog"
+
+stats.Register(datadog.NewClient("localhost:8125"))
+```
+
+### Prometheus
+
+The [github.com/segmentio/stats/v5/prometheus](https://godoc.org/github.com/segmentio/stats/v5/prometheus) package exposes an HTTP handler that serves metrics in Prometheus format.
+
+Note that with Prometheus the metric server polls your client for changes —
+metrics are pulled by the server, not pushed from the client. This is the
+opposite of most other backends here (Datadog, InfluxDB, OTLP), where the
+client pushes metrics to the server.
+
+```go
+import (
+    "net/http"
+    "github.com/segmentio/stats/v5/prometheus"
+)
+
+handler := prometheus.NewHandler()
+stats.Register(handler)
+http.Handle("/metrics", handler)
+```
+
+### InfluxDB
+
+The [github.com/segmentio/stats/v5/influxdb](https://godoc.org/github.com/segmentio/stats/v5/influxdb) package sends metrics to InfluxDB using the line protocol over HTTP.
+
+```go
+import "github.com/segmentio/stats/v5/influxdb"
+
+stats.Register(influxdb.NewClient("http://localhost:8086"))
+```
+
 ### Metrics
 
 - [Gauges](https://godoc.org/github.com/segmentio/stats#Gauge)

@@ -104,17 +104,17 @@ func valueOf(v stats.Value) float64 {
 }
 
 func tagsToAttributes(tags ...stats.Tag) []*commonpb.KeyValue {
-	attr := make([]*commonpb.KeyValue, 0, len(tags))
+	attr := make([]*commonpb.KeyValue, len(tags))
 
-	for _, tag := range tags {
-		attr = append(attr, &commonpb.KeyValue{
+	for i, tag := range tags {
+		attr[i] = &commonpb.KeyValue{
 			Key: tag.Name,
 			Value: &commonpb.AnyValue{
 				Value: &commonpb.AnyValue_StringValue{
 					StringValue: tag.Value,
 				},
 			},
-		})
+		}
 	}
 
 	return attr

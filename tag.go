@@ -24,9 +24,11 @@ func (t Tag) String() string {
 
 // M allows for creating a tag list from a map.
 func M(m map[string]string) []Tag {
-	tags := make([]Tag, 0, len(m))
+	tags := make([]Tag, len(m))
+	i := 0
 	for k, v := range m {
-		tags = append(tags, T(k, v))
+		tags[i] = T(k, v)
+		i++
 	}
 	return tags
 }

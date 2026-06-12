@@ -412,10 +412,12 @@ func (tags tagFuncMap) copy() tagFuncMap {
 }
 
 func (tags tagFuncMap) namedTagFuncs() []namedTagFunc {
-	namedTags := make([]namedTagFunc, 0, len(tags))
+	namedTags := make([]namedTagFunc, len(tags))
 
+	i := 0
 	for name, fn := range tags {
-		namedTags = append(namedTags, namedTagFunc{name: name, fn: fn})
+		namedTags[i] = namedTagFunc{name: name, fn: fn}
+		i++
 	}
 
 	return namedTags
