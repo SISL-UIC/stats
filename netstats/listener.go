@@ -23,12 +23,12 @@ func NewListenerWith(eng *stats.Engine, lstn net.Listener) net.Listener {
 type listener struct {
 	lstn   net.Listener
 	eng    *stats.Engine
-	closed uint32
+	closed atomic.Uint32
 }
 
 func (l *listener) Accept() (conn net.Conn, err error) {
 	if conn, err = l.lstn.Accept(); err != nil {
-		if atomic.LoadUint32(&l.closed) == 0 {
+		if l.closed.Load() == 0 {
 			l.error("accept", err)
 		}
 	}
@@ -41,7 +41,7 @@ func (l *listener) Accept() (conn net.Conn, err error) {
 }
 
 func (l *listener) Close() (err error) {
-	atomic.StoreUint32(&l.closed, 1)
+	l.closed.Store(1)
 	return l.lstn.Close()
 }
 

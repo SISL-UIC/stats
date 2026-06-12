@@ -77,7 +77,7 @@ type TimeserieWriter interface {
 // TableWriter is an interface used to write timeserie data in response to a
 // query.
 type TableWriter interface {
-	WriteRow(values ...interface{})
+	WriteRow(values ...any)
 }
 
 // Column is a data structure representing a table column.
@@ -237,7 +237,7 @@ func (t *timeserie) WriteDatapoint(value float64, time time.Time) {
 	})
 }
 
-type row []interface{}
+type row []any
 
 type table struct {
 	Columns []Column `json:"columns"`
@@ -246,7 +246,7 @@ type table struct {
 	closed  bool
 }
 
-func (t *table) WriteRow(values ...interface{}) {
+func (t *table) WriteRow(values ...any) {
 	if t.closed {
 		panic("writing to a table after it was already flushed")
 	}

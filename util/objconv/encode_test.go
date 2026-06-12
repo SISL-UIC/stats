@@ -33,8 +33,8 @@ func TestEncoder(t *testing.T) {
 	err := errors.New("error")
 
 	tests := [...]struct {
-		in  interface{}
-		out interface{}
+		in  any
+		out any
 	}{
 		// nil
 		{nil, nil},
@@ -95,22 +95,22 @@ func TestEncoder(t *testing.T) {
 		{err, err},
 
 		// array
-		{[...]int{1, 2, 3}, []interface{}{int64(1), int64(2), int64(3)}},
-		{[]int{1, 2, 3}, []interface{}{int64(1), int64(2), int64(3)}},
-		{[]int{}, []interface{}{}},
+		{[...]int{1, 2, 3}, []any{int64(1), int64(2), int64(3)}},
+		{[]int{1, 2, 3}, []any{int64(1), int64(2), int64(3)}},
+		{[]int{}, []any{}},
 
 		// map
-		{map[int]int{1: 21, 2: 42}, map[interface{}]interface{}{
+		{map[int]int{1: 21, 2: 42}, map[any]any{
 			int64(1): int64(21),
 			int64(2): int64(42),
 		}},
-		{map[string]interface{}{"hello": "world"}, map[interface{}]interface{}{
+		{map[string]any{"hello": "world"}, map[any]any{
 			"hello": "world",
 		}},
 
 		// struct
-		{struct{}{}, map[interface{}]interface{}{}},
-		{struct{ A int }{42}, map[interface{}]interface{}{"A": int64(42)}},
+		{struct{}{}, map[any]any{}},
+		{struct{ A int }{42}, map[any]any{"A": int64(42)}},
 
 		// struct tags
 		{
@@ -119,7 +119,7 @@ func TestEncoder(t *testing.T) {
 				B bool `objconv:"b,omitempty"`
 				C bool `objconv:"c,omitzero"`
 			}{true, false, false},
-			out: map[interface{}]interface{}{
+			out: map[any]any{
 				"a": true,
 			},
 		},
@@ -131,7 +131,7 @@ func TestEncoder(t *testing.T) {
 				B bool `json:"b,omitempty"`
 				C bool `json:"c,omitzero"`
 			}{true, false, false},
-			out: map[interface{}]interface{}{
+			out: map[any]any{
 				"a": true,
 				"c": false,
 			},
@@ -144,10 +144,10 @@ func TestEncoder(t *testing.T) {
 				{},
 				{"A": "1"},
 			},
-			out: []interface{}{
-				map[interface{}]interface{}{"A": "hello", "B": "world"},
-				map[interface{}]interface{}{},
-				map[interface{}]interface{}{"A": "1"},
+			out: []any{
+				map[any]any{"A": "hello", "B": "world"},
+				map[any]any{},
+				map[any]any{"A": "1"},
 			},
 		},
 
@@ -156,11 +156,11 @@ func TestEncoder(t *testing.T) {
 			in: map[string]struct{ M map[int][]int }{
 				"answer": {map[int][]int{1: {1, 2, 3}, 2: nil}},
 			},
-			out: map[interface{}]interface{}{
-				"answer": map[interface{}]interface{}{
-					"M": map[interface{}]interface{}{
-						int64(1): []interface{}{int64(1), int64(2), int64(3)},
-						int64(2): []interface{}{},
+			out: map[any]any{
+				"answer": map[any]any{
+					"M": map[any]any{
+						int64(1): []any{int64(1), int64(2), int64(3)},
+						int64(2): []any{},
 					},
 				},
 			},
@@ -184,7 +184,7 @@ func TestEncoder(t *testing.T) {
 }
 
 func BenchmarkEncoder(b *testing.B) {
-	tests := [...]interface{}{
+	tests := [...]any{
 		// nil
 		nil,
 
@@ -279,7 +279,7 @@ func TestStreamEncoderFix(t *testing.T) {
 		}
 	}
 
-	x1 := []interface{}{
+	x1 := []any{
 		int64(0),
 		int64(1),
 		int64(2),
@@ -313,7 +313,7 @@ func TestStreamEncoderVar(t *testing.T) {
 		t.Error(err)
 	}
 
-	x1 := []interface{}{
+	x1 := []any{
 		int64(0),
 		int64(1),
 		int64(2),

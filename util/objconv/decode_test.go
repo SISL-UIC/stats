@@ -13,8 +13,8 @@ func TestDecoderDecodeType(t *testing.T) {
 	err := errors.New("error")
 
 	tests := [...]struct {
-		in  interface{}
-		out interface{}
+		in  any
+		out any
 	}{
 		// type -> nil (discard)
 		{nil, nil},
@@ -210,21 +210,21 @@ func TestDecoderDecodeType(t *testing.T) {
 		// map -> struct
 		{map[string]int{}, struct{}{}},
 		{map[string]int{"A": 42}, struct{ A int }{42}},
-		{map[string]interface{}{"A": 1, "B": nil}, struct{ A int }{1}},
-		{map[string]interface{}{"A": 1, "B": true}, struct{ A int }{1}},
-		{map[string]interface{}{"A": 1, "B": int(0)}, struct{ A int }{1}},
-		{map[string]interface{}{"A": 1, "B": uint(0)}, struct{ A int }{1}},
-		{map[string]interface{}{"A": 1, "B": float64(0)}, struct{ A int }{1}},
-		{map[string]interface{}{"A": 1, "B": ""}, struct{ A int }{1}},
-		{map[string]interface{}{"A": 1, "B": []byte(nil)}, struct{ A int }{1}},
-		{map[string]interface{}{"A": 1, "B": []int{1, 2, 3}}, struct{ A int }{1}},
-		{map[string]interface{}{"A": 1, "B": map[int]int{1: 1, 2: 2, 3: 3}}, struct{ A int }{1}},
+		{map[string]any{"A": 1, "B": nil}, struct{ A int }{1}},
+		{map[string]any{"A": 1, "B": true}, struct{ A int }{1}},
+		{map[string]any{"A": 1, "B": int(0)}, struct{ A int }{1}},
+		{map[string]any{"A": 1, "B": uint(0)}, struct{ A int }{1}},
+		{map[string]any{"A": 1, "B": float64(0)}, struct{ A int }{1}},
+		{map[string]any{"A": 1, "B": ""}, struct{ A int }{1}},
+		{map[string]any{"A": 1, "B": []byte(nil)}, struct{ A int }{1}},
+		{map[string]any{"A": 1, "B": []int{1, 2, 3}}, struct{ A int }{1}},
+		{map[string]any{"A": 1, "B": map[int]int{1: 1, 2: 2, 3: 3}}, struct{ A int }{1}},
 
 		// struct -> map
-		{struct{}{}, map[string]interface{}{}},
-		{struct{ A int }{42}, map[string]interface{}{"A": int64(42)}},
-		{struct{}{}, map[interface{}]interface{}{}},
-		{struct{ A int }{42}, map[interface{}]interface{}{"A": int64(42)}},
+		{struct{}{}, map[string]any{}},
+		{struct{ A int }{42}, map[string]any{"A": int64(42)}},
+		{struct{}{}, map[any]any{}},
+		{struct{ A int }{42}, map[any]any{"A": int64(42)}},
 		{struct{}{}, map[string]string{}},
 		{struct{ A string }{"42"}, map[string]string{"A": "42"}},
 
@@ -241,7 +241,7 @@ func TestDecoderDecodeType(t *testing.T) {
 		t.Run(fmt.Sprintf("%T->%T", test.in, test.out), func(t *testing.T) {
 			dec := NewDecoder(NewValueParser(test.in))
 			var val reflect.Value
-			var ptr interface{}
+			var ptr any
 
 			if test.out != nil {
 				val = reflect.New(reflect.TypeOf(test.out))
@@ -262,7 +262,7 @@ func TestDecoderDecodeType(t *testing.T) {
 }
 
 func TestDecoderDecodeToEmptyInterface(t *testing.T) {
-	tests := []interface{}{
+	tests := []any{
 		// nil -> interface{}
 		nil,
 
@@ -300,18 +300,18 @@ func TestDecoderDecodeToEmptyInterface(t *testing.T) {
 		errors.New("error"),
 
 		// slice -> interface{}
-		[]interface{}{},
-		[]interface{}{nil, true, false, int64(0), uint64(0), float64(0), "Hello World"},
+		[]any{},
+		[]any{nil, true, false, int64(0), uint64(0), float64(0), "Hello World"},
 
 		// map -> interface{}
-		map[interface{}]interface{}{},
-		map[interface{}]interface{}{"Hello": "World!"},
+		map[any]any{},
+		map[any]any{"Hello": "World!"},
 	}
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("%T->interface{}", test), func(t *testing.T) {
 			dec := NewDecoder(NewValueParser(test))
-			var val interface{}
+			var val any
 
 			if err := dec.Decode(&val); err != nil {
 				t.Error(err)
@@ -325,7 +325,7 @@ func TestDecoderDecodeToEmptyInterface(t *testing.T) {
 }
 
 func TestStreamDecoder(t *testing.T) {
-	tests := [][]interface{}{
+	tests := [][]any{
 		{},
 		{0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
 	}
@@ -335,7 +335,7 @@ func TestStreamDecoder(t *testing.T) {
 			val := NewValueParser(test)
 			dec := NewStreamDecoder(val)
 
-			var v interface{}
+			var v any
 			i := int64(0)
 
 			if n := dec.Len(); n != len(test) {
@@ -361,7 +361,7 @@ func TestStreamDecoder(t *testing.T) {
 }
 
 func TestStreamRencode(t *testing.T) {
-	tests := []interface{}{
+	tests := []any{
 		nil,
 		true,
 		false,
@@ -369,8 +369,8 @@ func TestStreamRencode(t *testing.T) {
 		uint64(1),
 		float64(1),
 		"Hello World!",
-		map[interface{}]interface{}{"hello": "world"},
-		[]interface{}{
+		map[any]any{"hello": "world"},
+		[]any{
 			int64(0),
 			int64(1),
 			int64(2),
@@ -396,7 +396,7 @@ func TestStreamRencode(t *testing.T) {
 				return
 			}
 
-			var v interface{}
+			var v any
 
 			for dec.Decode(&v) == nil {
 				if err := enc.Encode(v); err != nil {

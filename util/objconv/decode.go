@@ -40,7 +40,7 @@ func NewDecoder(p Parser) *Decoder {
 //
 // The method panics if v is neither a pointer type nor implements the
 // ValueDecoder interface, or if v is a nil pointer.
-func (d Decoder) Decode(v interface{}) error {
+func (d Decoder) Decode(v any) error {
 	to := reflect.ValueOf(v)
 
 	if d.off != 0 {
@@ -64,7 +64,7 @@ func (d Decoder) Decode(v interface{}) error {
 		return x.DecodeValue(d)
 	}
 
-	if to.Kind() == reflect.Ptr {
+	if to.Kind() == reflect.Pointer {
 		// In most cases the method receives a pointer, but we may also have to
 		// support types that aren't pointers but implement ValueDecoder, or
 		// types that have got adapters set.
@@ -820,10 +820,10 @@ func (d Decoder) decodeMapFromTypeWith(typ Type, to reflect.Value, kf, vf decode
 }
 
 func (d Decoder) decodeMapInterfaceInterface(typ Type, to reflect.Value) error {
-	m := to.Interface().(map[interface{}]interface{})
+	m := to.Interface().(map[any]any)
 
 	if m == nil {
-		m = make(map[interface{}]interface{})
+		m = make(map[any]any)
 		to.Set(reflect.ValueOf(m))
 	}
 
@@ -832,8 +832,8 @@ func (d Decoder) decodeMapInterfaceInterface(typ Type, to reflect.Value) error {
 	}
 
 	return d.decodeMapImpl(typ, func(kd, vd Decoder) (err error) {
-		var k interface{}
-		var v interface{}
+		var k any
+		var v any
 
 		if err = kd.Decode(&k); err != nil {
 			return err
@@ -848,10 +848,10 @@ func (d Decoder) decodeMapInterfaceInterface(typ Type, to reflect.Value) error {
 }
 
 func (d Decoder) decodeMapStringInterface(typ Type, to reflect.Value) (err error) {
-	m := to.Interface().(map[string]interface{})
+	m := to.Interface().(map[string]any)
 
 	if m == nil {
-		m = make(map[string]interface{})
+		m = make(map[string]any)
 		to.Set(reflect.ValueOf(m))
 	}
 
@@ -862,7 +862,7 @@ func (d Decoder) decodeMapStringInterface(typ Type, to reflect.Value) (err error
 	return d.decodeMapImpl(typ, func(_, vd Decoder) (err error) {
 		var b []byte
 		var k string
-		var v interface{}
+		var v any
 
 		if _, b, err = d.decodeTypeAndString(); err != nil {
 			return err
@@ -1010,7 +1010,7 @@ func (d Decoder) decodeBinaryUnmarshaler(to reflect.Value) (t Type, err error) {
 		return t, err
 	}
 
-	if to.Kind() == reflect.Ptr && to.IsNil() {
+	if to.Kind() == reflect.Pointer && to.IsNil() {
 		to.Set(reflect.New(to.Type().Elem()))
 	}
 
@@ -1030,7 +1030,7 @@ func (d Decoder) decodeTextUnmarshaler(to reflect.Value) (t Type, err error) {
 		return t, err
 	}
 
-	if to.Kind() == reflect.Ptr && to.IsNil() {
+	if to.Kind() == reflect.Pointer && to.IsNil() {
 		to.Set(reflect.New(to.Type().Elem()))
 	}
 
@@ -1314,7 +1314,7 @@ func (d *StreamDecoder) Err() error {
 }
 
 // Decodes the next value from the stream into v.
-func (d *StreamDecoder) Decode(v interface{}) error {
+func (d *StreamDecoder) Decode(v any) error {
 	if d.err != nil {
 		return d.err
 	}
@@ -1510,7 +1510,7 @@ func makeDecodeFunc(t reflect.Type, opts decodeFuncOpts) decodeFunc {
 	case reflect.Map:
 		return makeDecodeMapFunc(t, opts)
 
-	case reflect.Ptr:
+	case reflect.Pointer:
 		return makeDecodePtrFunc(t, opts)
 
 	case reflect.Array:

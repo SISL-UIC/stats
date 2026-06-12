@@ -12,7 +12,7 @@ type structField struct {
 }
 
 func (f structField) pointer(ptr unsafe.Pointer) unsafe.Pointer {
-	return unsafe.Pointer(uintptr(ptr) + f.off)
+	return unsafe.Add(ptr, f.off)
 }
 
 func (f structField) bool(ptr unsafe.Pointer) bool {
@@ -80,20 +80,20 @@ func (f structField) string(ptr unsafe.Pointer) string {
 }
 
 var (
-	boolType     = reflect.TypeOf(false)
-	intType      = reflect.TypeOf(int(0))
-	int8Type     = reflect.TypeOf(int8(0))
-	int16Type    = reflect.TypeOf(int16(0))
-	int32Type    = reflect.TypeOf(int32(0))
-	int64Type    = reflect.TypeOf(int64(0))
-	uintType     = reflect.TypeOf(uint(0))
-	uint8Type    = reflect.TypeOf(uint8(0))
-	uint16Type   = reflect.TypeOf(uint16(0))
-	uint32Type   = reflect.TypeOf(uint32(0))
-	uint64Type   = reflect.TypeOf(uint64(0))
-	uintptrType  = reflect.TypeOf(uintptr(0))
-	float32Type  = reflect.TypeOf(float32(0))
-	float64Type  = reflect.TypeOf(float64(0))
-	durationType = reflect.TypeOf(time.Duration(0))
-	stringType   = reflect.TypeOf("")
+	boolType     = reflect.TypeFor[bool]()
+	intType      = reflect.TypeFor[int]()
+	int8Type     = reflect.TypeFor[int8]()
+	int16Type    = reflect.TypeFor[int16]()
+	int32Type    = reflect.TypeFor[int32]()
+	int64Type    = reflect.TypeFor[int64]()
+	uintType     = reflect.TypeFor[uint]()
+	uint8Type    = reflect.TypeFor[uint8]()
+	uint16Type   = reflect.TypeFor[uint16]()
+	uint32Type   = reflect.TypeFor[uint32]()
+	uint64Type   = reflect.TypeFor[uint64]()
+	uintptrType  = reflect.TypeFor[uintptr]()
+	float32Type  = reflect.TypeFor[float32]()
+	float64Type  = reflect.TypeFor[float64]()
+	durationType = reflect.TypeFor[time.Duration]()
+	stringType   = reflect.TypeFor[string]()
 )

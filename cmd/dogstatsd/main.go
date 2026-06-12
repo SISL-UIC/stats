@@ -137,7 +137,7 @@ func run(args ...string) {
 	}
 }
 
-func errorf(msg string, args ...interface{}) {
+func errorf(msg string, args ...any) {
 	fmt.Fprintf(os.Stderr, msg+"\n", args...)
 	os.Exit(1)
 }
@@ -178,12 +178,12 @@ func (tags tags) String() string {
 }
 
 func (tags *tags) Set(s string) (err error) {
-	for _, pair := range strings.Split(s, ",") {
+	for pair := range strings.SplitSeq(s, ",") {
 		var tag stats.Tag
-		if i := strings.IndexByte(pair, ':'); i < 0 {
+		if before, after, ok := strings.Cut(pair, ":"); !ok {
 			tag.Name = pair
 		} else {
-			tag.Name, tag.Value = pair[:i], pair[i+1:]
+			tag.Name, tag.Value = before, after
 		}
 		*tags = append(*tags, tag)
 	}

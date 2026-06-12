@@ -1,6 +1,7 @@
 package stats
 
 import (
+	"maps"
 	"reflect"
 	"sort"
 	"strings"
@@ -74,7 +75,7 @@ func stringTags(tags []Tag) []string {
 //  3. All struct fields are searched recursively for fields matching rule (1)
 //     and (2). Tags found within a struct are inherited by measures generated from
 //     sub-fields, they may also be overwritten.
-func MakeMeasures(prefix string, value interface{}, tags ...Tag) []Measure {
+func MakeMeasures(prefix string, value any, tags ...Tag) []Measure {
 	if !TagsAreSorted(tags) {
 		SortTags(tags)
 	}
@@ -92,7 +93,7 @@ func appendMeasures(m []Measure, cache *measureCache, prefix string, v reflect.V
 	// where it's not we have to make a copy of the value to be able to safely
 	// get a pointer.
 	switch {
-	case v.Kind() == reflect.Ptr:
+	case v.Kind() == reflect.Pointer:
 		p = v
 		v = v.Elem()
 	case v.CanAddr():
@@ -405,9 +406,7 @@ type tagFuncMap map[string](func(unsafe.Pointer) Tag)
 func (tags tagFuncMap) copy() tagFuncMap {
 	cpy := make(tagFuncMap, len(tags))
 
-	for name, fn := range tags {
-		cpy[name] = fn
-	}
+	maps.Copy(cpy, tags)
 
 	return cpy
 }
@@ -465,7 +464,7 @@ type measuresBuffer struct {
 }
 
 var measurePool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return &measuresBuffer{measures: make([]Measure, 0, 32)}
 	},
 }
@@ -489,9 +488,7 @@ func (c *measureCache) set(typ reflect.Type, mf []measureFuncs) {
 		m2 := map[reflect.Type][]measureFuncs{typ: mf}
 
 		if m1 != nil {
-			for t, f := range *m1 {
-				m2[t] = f
-			}
+			maps.Copy(m2, *m1)
 		}
 
 		if c.compareAndSwap(m1, &m2) {

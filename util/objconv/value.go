@@ -85,25 +85,25 @@ func zeroValueOf(t reflect.Type) reflect.Value {
 
 var (
 	// Basic types.
-	boolType           = reflect.TypeOf(false)
-	intType            = reflect.TypeOf(int(0))
-	int8Type           = reflect.TypeOf(int8(0))
-	int16Type          = reflect.TypeOf(int16(0))
-	int32Type          = reflect.TypeOf(int32(0))
-	int64Type          = reflect.TypeOf(int64(0))
-	uintType           = reflect.TypeOf(uint(0))
-	uint8Type          = reflect.TypeOf(uint8(0))
-	uint16Type         = reflect.TypeOf(uint16(0))
-	uint32Type         = reflect.TypeOf(uint32(0))
-	uint64Type         = reflect.TypeOf(uint64(0))
-	uintptrType        = reflect.TypeOf(uintptr(0))
-	float32Type        = reflect.TypeOf(float32(0))
-	float64Type        = reflect.TypeOf(float64(0))
-	stringType         = reflect.TypeOf("")
-	bytesType          = reflect.TypeOf([]byte(nil))
-	timeType           = reflect.TypeOf(time.Time{})
-	durationType       = reflect.TypeOf(time.Duration(0))
-	sliceInterfaceType = reflect.TypeOf(([]interface{})(nil))
+	boolType           = reflect.TypeFor[bool]()
+	intType            = reflect.TypeFor[int]()
+	int8Type           = reflect.TypeFor[int8]()
+	int16Type          = reflect.TypeFor[int16]()
+	int32Type          = reflect.TypeFor[int32]()
+	int64Type          = reflect.TypeFor[int64]()
+	uintType           = reflect.TypeFor[uint]()
+	uint8Type          = reflect.TypeFor[uint8]()
+	uint16Type         = reflect.TypeFor[uint16]()
+	uint32Type         = reflect.TypeFor[uint32]()
+	uint64Type         = reflect.TypeFor[uint64]()
+	uintptrType        = reflect.TypeFor[uintptr]()
+	float32Type        = reflect.TypeFor[float32]()
+	float64Type        = reflect.TypeFor[float64]()
+	stringType         = reflect.TypeFor[string]()
+	bytesType          = reflect.TypeFor[[]byte]()
+	timeType           = reflect.TypeFor[time.Time]()
+	durationType       = reflect.TypeFor[time.Duration]()
+	sliceInterfaceType = reflect.TypeOf(([]any)(nil))
 	timePtrType        = reflect.PointerTo(timeType)
 
 	// Interfaces.
@@ -114,15 +114,15 @@ var (
 	binaryUnmarshalerInterface = elemTypeOf((*encoding.BinaryUnmarshaler)(nil))
 	textMarshalerInterface     = elemTypeOf((*encoding.TextMarshaler)(nil))
 	textUnmarshalerInterface   = elemTypeOf((*encoding.TextUnmarshaler)(nil))
-	emptyInterface             = elemTypeOf((*interface{})(nil))
+	emptyInterface             = elemTypeOf((*any)(nil))
 
 	// Common map types, used for optimization for map encoding algorithms.
-	mapStringStringType       = reflect.TypeOf((map[string]string)(nil))
-	mapStringInterfaceType    = reflect.TypeOf((map[string]interface{})(nil))
-	mapInterfaceInterfaceType = reflect.TypeOf((map[interface{}]interface{})(nil))
+	mapStringStringType       = reflect.TypeFor[map[string]string]()
+	mapStringInterfaceType    = reflect.TypeOf((map[string]any)(nil))
+	mapInterfaceInterfaceType = reflect.TypeOf((map[any]any)(nil))
 )
 
-func elemTypeOf(v interface{}) reflect.Type {
+func elemTypeOf(v any) reflect.Type {
 	return reflect.TypeOf(v).Elem()
 }
 
@@ -149,7 +149,7 @@ type valueParserContext struct {
 }
 
 // NewValueParser creates a new parser that exposes the value v.
-func NewValueParser(v interface{}) *ValueParser {
+func NewValueParser(v any) *ValueParser {
 	return &ValueParser{
 		stack: []reflect.Value{reflect.ValueOf(v)},
 	}
@@ -367,7 +367,7 @@ func (p *ValueParser) value() reflect.Value {
 
 dereference:
 	switch v.Kind() {
-	case reflect.Interface, reflect.Ptr:
+	case reflect.Interface, reflect.Pointer:
 		if !v.IsNil() {
 			v = v.Elem()
 			goto dereference
@@ -403,7 +403,7 @@ func (p *ValueParser) context() *valueParserContext {
 // This is useful for testing the high-level API of the package without actually
 // having to generate a serialized representation.
 type ValueEmitter struct {
-	stack []interface{}
+	stack []any
 	marks []int
 }
 
@@ -413,7 +413,7 @@ func NewValueEmitter() *ValueEmitter {
 }
 
 // Value returns the value built in the emitter.
-func (e *ValueEmitter) Value() interface{} { return e.stack[0] }
+func (e *ValueEmitter) Value() any { return e.stack[0] }
 
 func (e *ValueEmitter) EmitNil() error { return e.push(nil) }
 
@@ -439,7 +439,7 @@ func (e *ValueEmitter) EmitArrayBegin(_ int) error { return e.pushMark() }
 
 func (e *ValueEmitter) EmitArrayEnd() error {
 	v := e.pop(e.popMark())
-	a := make([]interface{}, len(v))
+	a := make([]any, len(v))
 	copy(a, v)
 	return e.push(a)
 }
@@ -451,7 +451,7 @@ func (e *ValueEmitter) EmitMapBegin(_ int) error { return e.pushMark() }
 func (e *ValueEmitter) EmitMapEnd() error {
 	v := e.pop(e.popMark())
 	n := len(v)
-	m := make(map[interface{}]interface{}, n/2)
+	m := make(map[any]any, n/2)
 
 	for i := 0; i != n; i += 2 {
 		m[v[i]] = v[i+1]
@@ -464,12 +464,12 @@ func (e *ValueEmitter) EmitMapValue() error { return nil }
 
 func (e *ValueEmitter) EmitMapNext() error { return nil }
 
-func (e *ValueEmitter) push(v interface{}) error {
+func (e *ValueEmitter) push(v any) error {
 	e.stack = append(e.stack, v)
 	return nil
 }
 
-func (e *ValueEmitter) pop(n int) []interface{} {
+func (e *ValueEmitter) pop(n int) []any {
 	v := e.stack[n:]
 	e.stack = e.stack[:n]
 	return v

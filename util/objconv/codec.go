@@ -2,6 +2,7 @@ package objconv
 
 import (
 	"io"
+	"maps"
 	"sync"
 )
 
@@ -72,9 +73,7 @@ func (reg *Registry) Lookup(mimetype string) (codec Codec, ok bool) {
 func (reg *Registry) Codecs() (codecs map[string]Codec) {
 	codecs = make(map[string]Codec)
 	reg.mutex.RLock()
-	for mimetype, codec := range reg.codecs {
-		codecs[mimetype] = codec
-	}
+	maps.Copy(codecs, reg.codecs)
 	reg.mutex.RUnlock()
 	return codecs
 }

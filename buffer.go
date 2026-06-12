@@ -34,7 +34,7 @@ type Buffer struct {
 	Serializer Serializer
 
 	once    sync.Once
-	offset  uint64
+	offset  atomic.Uint64
 	buffers []buffer
 }
 
@@ -105,7 +105,7 @@ func (b *Buffer) acquireBuffer() *buffer {
 	n := uint64(len(b.buffers))
 
 	for {
-		offset := atomic.AddUint64(&b.offset, 1) % n
+		offset := b.offset.Add(1) % n
 		buffer := &b.buffers[offset]
 
 		if buffer.acquire() {
@@ -130,17 +130,17 @@ type Serializer interface {
 }
 
 type buffer struct {
-	lock uint64
+	lock atomic.Uint64
 	data []byte
 	_    [32]byte // padding to avoid false sharing between threads
 }
 
 func (b *buffer) acquire() bool {
-	return atomic.CompareAndSwapUint64(&b.lock, 0, 1)
+	return b.lock.CompareAndSwap(0, 1)
 }
 
 func (b *buffer) release() {
-	atomic.StoreUint64(&b.lock, 0)
+	b.lock.Store(0)
 }
 
 func (b *buffer) init(size int) {

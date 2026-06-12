@@ -38,7 +38,7 @@ type SearchResponse interface {
 
 	// WriteTargetValue writes the pair of target and value in the response,
 	// the method may be called multiple times.
-	WriteTargetValue(target string, value interface{})
+	WriteTargetValue(target string, value any)
 }
 
 // SearchRequest represents a request received on the /search endpoint.
@@ -84,9 +84,9 @@ func (res *searchResponse) WriteTarget(target string) {
 	_ = res.enc.Encode(target)
 }
 
-func (res *searchResponse) WriteTargetValue(target string, value interface{}) {
+func (res *searchResponse) WriteTargetValue(target string, value any) {
 	_ = res.enc.Encode(struct {
-		Target string      `json:"target"`
-		Value  interface{} `json:"value"`
+		Target string `json:"target"`
+		Value  any    `json:"value"`
 	}{target, value})
 }

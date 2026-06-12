@@ -412,8 +412,8 @@ func unsafeByteSliceToString(b []byte) string {
 }
 
 func nextLe(s string) (head, tail string) {
-	if i := strings.IndexByte(s, ':'); i >= 0 {
-		head, tail = s[:i], s[i+1:]
+	if before, after, ok := strings.Cut(s, ":"); ok {
+		head, tail = before, after
 	} else {
 		head = s
 	}

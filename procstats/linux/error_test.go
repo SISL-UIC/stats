@@ -9,7 +9,7 @@ import (
 
 func TestConvertPanicToError(t *testing.T) {
 	tests := []struct {
-		v interface{}
+		v any
 		e error
 	}{
 		{

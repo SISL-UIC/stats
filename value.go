@@ -24,7 +24,7 @@ func MustValueOf(v Value) Value {
 
 // ValueOf inspects v's underlying type and returns a Value which encapsulates this type.
 // If the underlying type of v is not supported by Value's encapsulation its Type() will return stats.Invalid.
-func ValueOf(v interface{}) Value {
+func ValueOf(v any) Value {
 	switch x := v.(type) {
 	case Value:
 		return x
@@ -157,7 +157,7 @@ func (v Value) Duration() time.Duration {
 
 // Interface returns an new interface{} representation of this value.
 // However, if the underlying Type is unsupported it panics.
-func (v Value) Interface() interface{} {
+func (v Value) Interface() any {
 	switch v.Type() {
 	case Null:
 		return nil

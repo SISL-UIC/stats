@@ -12,7 +12,7 @@ import (
 // IsEmpty returns true if the value given as argument would be considered
 // empty by the standard library packages, and therefore not serialized if
 // `omitempty` is set on a struct field with this value.
-func IsEmpty(v interface{}) bool {
+func IsEmpty(v any) bool {
 	return IsEmptyValue(reflect.ValueOf(v))
 }
 
@@ -36,7 +36,7 @@ func IsEmptyValue(v reflect.Value) bool {
 		return v.Uint() == 0
 	case reflect.Float32, reflect.Float64:
 		return v.Float() == 0
-	case reflect.Interface, reflect.Ptr, reflect.Chan, reflect.Func:
+	case reflect.Interface, reflect.Pointer, reflect.Chan, reflect.Func:
 		return v.IsNil()
 	case reflect.UnsafePointer:
 		return unsafe.Pointer(v.Pointer()) == nil

@@ -35,7 +35,7 @@ func NewEncoder(e Emitter) *Encoder {
 }
 
 // Encode encodes the generic value v.
-func (e Encoder) Encode(v interface{}) (err error) {
+func (e Encoder) Encode(v any) (err error) {
 	if err = e.encodeMapValueMaybe(); err != nil {
 		return err
 	}
@@ -92,16 +92,16 @@ func (e Encoder) Encode(v interface{}) (err error) {
 	case []string:
 		return e.encodeSliceOfString(x)
 
-	case []interface{}:
+	case []any:
 		return e.encodeSliceOfInterface(x)
 
 	case map[string]string:
 		return e.encodeMapStringString(x)
 
-	case map[string]interface{}:
+	case map[string]any:
 		return e.encodeMapStringInterface(x)
 
-	case map[interface{}]interface{}:
+	case map[any]any:
 		return e.encodeMapInterfaceInterface(x)
 
 		// Also checks for pointer types so the program can use this as a way
@@ -197,7 +197,7 @@ func (e Encoder) Encode(v interface{}) (err error) {
 		}
 		return e.encodeSliceOfString(*x)
 
-	case *[]interface{}:
+	case *[]any:
 		if x == nil {
 			return e.Emitter.EmitNil()
 		}
@@ -209,13 +209,13 @@ func (e Encoder) Encode(v interface{}) (err error) {
 		}
 		return e.encodeMapStringString(*x)
 
-	case *map[string]interface{}:
+	case *map[string]any:
 		if x == nil {
 			return e.Emitter.EmitNil()
 		}
 		return e.encodeMapStringInterface(*x)
 
-	case *map[interface{}]interface{}:
+	case *map[any]any:
 		if x == nil {
 			return e.Emitter.EmitNil()
 		}
@@ -316,7 +316,7 @@ func (e Encoder) encodeTime(v reflect.Value) error {
 	// As a side effect, this also sometimes permit more optimizations because
 	// having a pointer will likely avoid a memory allocation when calling
 	// Interface on the value.
-	if v.Kind() != reflect.Ptr {
+	if v.Kind() != reflect.Pointer {
 		t = v.Interface().(time.Time)
 	} else {
 		ptr := v.Interface().(*time.Time)
@@ -359,7 +359,7 @@ func (e Encoder) encodeSliceOfString(a []string) error {
 	})
 }
 
-func (e Encoder) encodeSliceOfInterface(a []interface{}) error {
+func (e Encoder) encodeSliceOfInterface(a []any) error {
 	i := 0
 	return e.EncodeArray(len(a), func(e Encoder) (err error) {
 		err = e.Encode(a[i])
@@ -419,10 +419,10 @@ func (e Encoder) encodeMapWith(v reflect.Value, kf, vf encodeFunc) error {
 }
 
 func (e Encoder) encodeMapInterfaceInterfaceValue(v reflect.Value) error {
-	return e.encodeMapInterfaceInterface(v.Interface().(map[interface{}]interface{}))
+	return e.encodeMapInterfaceInterface(v.Interface().(map[any]any))
 }
 
-func (e Encoder) encodeMapInterfaceInterface(m map[interface{}]interface{}) (err error) {
+func (e Encoder) encodeMapInterfaceInterface(m map[any]any) (err error) {
 	n := len(m)
 	i := 0
 
@@ -452,10 +452,10 @@ func (e Encoder) encodeMapInterfaceInterface(m map[interface{}]interface{}) (err
 }
 
 func (e Encoder) encodeMapStringInterfaceValue(v reflect.Value) error {
-	return e.encodeMapStringInterface(v.Interface().(map[string]interface{}))
+	return e.encodeMapStringInterface(v.Interface().(map[string]any))
 }
 
-func (e Encoder) encodeMapStringInterface(m map[string]interface{}) (err error) {
+func (e Encoder) encodeMapStringInterface(m map[string]any) (err error) {
 	n := len(m)
 	i := 0
 
@@ -780,7 +780,7 @@ func (e *StreamEncoder) Close() error {
 
 // Encode writes v to the stream, encoding it based on the emitter configured
 // on e.
-func (e *StreamEncoder) Encode(v interface{}) error {
+func (e *StreamEncoder) Encode(v any) error {
 	if err := e.Open(-1); err != nil {
 		return err
 	}
@@ -931,7 +931,7 @@ func makeEncodeFunc(t reflect.Type, opts encodeFuncOpts) encodeFunc {
 	case reflect.Map:
 		return makeEncodeMapFunc(t, opts)
 
-	case reflect.Ptr:
+	case reflect.Pointer:
 		return makeEncodePtrFunc(t, opts)
 
 	case reflect.Array:

@@ -17,7 +17,7 @@ var (
 type Handler struct {
 	sync.Mutex
 	measures []stats.Measure
-	flush    int32
+	flush    atomic.Int32
 }
 
 // HandleMeasures process a variadic list of stats.Measure.
@@ -40,12 +40,12 @@ func (h *Handler) Measures() []stats.Measure {
 
 // Flush Increments Flush counter.
 func (h *Handler) Flush() {
-	atomic.AddInt32(&h.flush, 1)
+	h.flush.Add(1)
 }
 
 // FlushCalls returns the number of times `Flush` has been invoked.
 func (h *Handler) FlushCalls() int {
-	return int(atomic.LoadInt32(&h.flush))
+	return int(h.flush.Load())
 }
 
 // Clear removes all measures held by Handler.

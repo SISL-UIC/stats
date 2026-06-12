@@ -17,7 +17,7 @@ func TestFuzzyDeadlock(t *testing.T) {
 		timeout    = 1 * time.Second
 	)
 
-	for i := 0; i < iterations; i++ {
+	for i := range iterations {
 		// 1) fresh store with one expired metric so cleanup() will actually delete
 		var store metricStore
 		store.entries = make(map[metricKey]*metricEntry)
@@ -42,7 +42,7 @@ func TestFuzzyDeadlock(t *testing.T) {
 		}()
 
 		// 3) both must finish within timeout or we assume a deadlock
-		for j := 0; j < 2; j++ {
+		for range 2 {
 			select {
 			case <-done:
 				// one of them completed

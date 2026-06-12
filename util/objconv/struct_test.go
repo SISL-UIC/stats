@@ -16,7 +16,7 @@ func TestMakeStructField(t *testing.T) {
 		f structField
 	}{
 		{
-			s: reflect.TypeOf(A{}).Field(0),
+			s: reflect.TypeFor[A]().Field(0),
 			f: structField{
 				index: []int{0},
 				name:  "A",
@@ -24,7 +24,7 @@ func TestMakeStructField(t *testing.T) {
 		},
 
 		{
-			s: reflect.TypeOf(a{}).Field(0),
+			s: reflect.TypeFor[a]().Field(0),
 			f: structField{
 				index: []int{0},
 				name:  "a",
@@ -32,7 +32,7 @@ func TestMakeStructField(t *testing.T) {
 		},
 
 		{
-			s: reflect.TypeOf(B{}).Field(0),
+			s: reflect.TypeFor[B]().Field(0),
 			f: structField{
 				index: []int{0},
 				name:  "A",
@@ -40,7 +40,7 @@ func TestMakeStructField(t *testing.T) {
 		},
 
 		{
-			s: reflect.TypeOf(b{a: a{}}).Field(0),
+			s: reflect.TypeFor[b]().Field(0),
 			f: structField{
 				index: []int{0},
 				name:  "a",

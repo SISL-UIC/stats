@@ -12,7 +12,7 @@ type Key struct {
 type HistogramBuckets map[Key][]Value
 
 // Set sets a set of buckets to the given list of sorted values.
-func (b HistogramBuckets) Set(key string, buckets ...interface{}) {
+func (b HistogramBuckets) Set(key string, buckets ...any) {
 	v := make([]Value, len(buckets))
 
 	for i, b := range buckets {

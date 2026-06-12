@@ -7,7 +7,7 @@ import (
 
 // IsZero returns true if the value given as argument is the zero-value of
 // the type of v.
-func IsZero(v interface{}) bool {
+func IsZero(v any) bool {
 	return IsZeroValue(reflect.ValueOf(v))
 }
 
@@ -16,7 +16,7 @@ func IsZeroValue(v reflect.Value) bool {
 		return true // nil interface{}
 	}
 	switch v.Kind() {
-	case reflect.Map, reflect.Slice, reflect.Ptr, reflect.Interface, reflect.Chan, reflect.Func:
+	case reflect.Map, reflect.Slice, reflect.Pointer, reflect.Interface, reflect.Chan, reflect.Func:
 		return v.IsNil()
 	case reflect.Bool:
 		return !v.Bool()

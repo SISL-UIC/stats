@@ -7,7 +7,7 @@ import (
 )
 
 func TestIsZeroTrue(t *testing.T) {
-	tests := []interface{}{
+	tests := []any{
 		nil,
 
 		false,
@@ -58,7 +58,7 @@ func TestIsZeroTrue(t *testing.T) {
 func TestIsZeroFalse(t *testing.T) {
 	answer := 42
 
-	tests := []interface{}{
+	tests := []any{
 		true,
 
 		int(1),

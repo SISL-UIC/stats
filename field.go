@@ -9,7 +9,7 @@ type Field struct {
 }
 
 // MakeField constructs and returns a new Field from name, value, and ftype.
-func MakeField(name string, value interface{}, ftype FieldType) Field {
+func MakeField(name string, value any, ftype FieldType) Field {
 	f := Field{Name: name, Value: MustValueOf(ValueOf(value))}
 	f.setType(ftype)
 	return f

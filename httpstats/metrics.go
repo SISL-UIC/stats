@@ -379,8 +379,8 @@ func parseContentType(s string) (contentType, charset string) {
 }
 
 func parseHeaderToken(s string) (token, next string) {
-	if i := strings.IndexByte(s, ';'); i >= 0 {
-		token, next = strings.TrimSpace(s[:i]), strings.TrimSpace(s[i+1:])
+	if before, after, ok := strings.Cut(s, ";"); ok {
+		token, next = strings.TrimSpace(before), strings.TrimSpace(after)
 	} else {
 		token = strings.TrimSpace(s)
 	}

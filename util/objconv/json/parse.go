@@ -149,9 +149,9 @@ func (p *Parser) ParseString() (v []byte, err error) {
 	if p.i != p.j && p.b[p.i] == '"' {
 		chunk := p.b[p.i+1 : p.j]
 		off1 := bytes.IndexByte(chunk, '"')
-		off2 := bytes.IndexByte(chunk, '\\')
+		found := bytes.Contains(chunk, []byte{'\\'})
 
-		if off1 >= 0 && off2 < 0 {
+		if off1 >= 0 && !found {
 			v = p.b[p.i+1 : p.i+1+off1]
 			p.i += off1 + 2
 			return v, err

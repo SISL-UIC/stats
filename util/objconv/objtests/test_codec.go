@@ -20,7 +20,7 @@ import (
 )
 
 // TestValues is an array of all the values used by the TestCodec suite.
-var TestValues = [...]interface{}{
+var TestValues = [...]any{
 	// constants
 	nil,
 	false,
@@ -114,7 +114,7 @@ var TestValues = [...]interface{}{
 	make([]int, objutil.Uint8Max+1),
 	make([]int, objutil.Uint16Max+1),
 	[]string{"A", "B", "C"},
-	[]interface{}{nil, true, false, 0.5, "Hello World!"},
+	[]any{nil, true, false, 0.5, "Hello World!"},
 
 	// map
 	makeMap(0),
@@ -169,7 +169,7 @@ func makeMap(n int) map[string]string {
 	return m
 }
 
-func testName(v interface{}) string {
+func testName(v any) string {
 	s := fmt.Sprintf("%T:%v", v, v)
 	if len(s) > 42 {
 		s = s[:42] + "..."
@@ -186,7 +186,7 @@ func TestCodec(t *testing.T, codec objconv.Codec) {
 	t.Run("Stream", func(t *testing.T) { testCodecStream(t, codec) })
 }
 
-func newValue(model interface{}) reflect.Value {
+func newValue(model any) reflect.Value {
 	if model == nil {
 		return reflect.New(reflect.TypeOf(&model).Elem())
 	}
@@ -265,7 +265,7 @@ func testCodecStreamValues(t *testing.T, codec objconv.Codec) {
 		}
 	}
 
-	var v interface{}
+	var v any
 	if err := d.Decode(&v); err == nil {
 		t.Error("too many values decoded from the stream")
 	}
@@ -287,7 +287,7 @@ func testCodecStreamEmpty(t *testing.T, codec objconv.Codec) {
 		w.Close()
 	}()
 
-	var v interface{}
+	var v any
 	if err := d.Decode(&v); err == nil {
 		t.Error("no values should have been produed on the stream")
 	}
@@ -351,7 +351,7 @@ func benchmarkDecoder(b *testing.B, codec objconv.Codec) {
 			d := objconv.NewDecoder(codec.NewParser(r))
 
 			for b.Loop() {
-				var x interface{}
+				var x any
 				if err := d.Decode(&x); err != nil {
 					b.Fatal(err)
 				}
@@ -405,7 +405,7 @@ func benchmarkStreamDecoder(b *testing.B, codec objconv.Codec) {
 			d := objconv.NewStreamDecoder(codec.NewParser(r))
 
 			for b.Loop() {
-				var x interface{}
+				var x any
 				if err := d.Decode(&x); err != nil {
 					b.Fatal(err)
 				}

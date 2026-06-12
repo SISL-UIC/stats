@@ -82,8 +82,8 @@ func skipSpaces(text string) string {
 }
 
 func skipLine(text string) string {
-	if i := strings.IndexByte(text, '\n'); i >= 0 {
-		return text[i+1:]
+	if _, after, ok := strings.Cut(text, "\n"); ok {
+		return after
 	}
 	return ""
 }

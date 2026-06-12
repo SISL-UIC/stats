@@ -10,7 +10,7 @@ import (
 // which captures the values passed to its method calls.
 type QueryResponse struct {
 	// Results is a list of values which are either of type Timeserie or Table.
-	Results []interface{}
+	Results []any
 }
 
 // Timeserie satisfies the grafana.QueryResponse interface.
@@ -45,12 +45,12 @@ func (t *Timeserie) WriteDatapoint(value float64, time time.Time) {
 // queries.
 type Table struct {
 	Columns []grafana.Column
-	Rows    [][]interface{}
+	Rows    [][]any
 }
 
 // WriteRow satisfies the grafana.TableWriter interface.
-func (t *Table) WriteRow(values ...interface{}) {
+func (t *Table) WriteRow(values ...any) {
 	t.Rows = append(t.Rows,
-		append(make([]interface{}, 0, len(values)), values...),
+		append(make([]any, 0, len(values)), values...),
 	)
 }

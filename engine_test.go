@@ -677,8 +677,8 @@ func TestVersionMetricsPrometheusNoTimestamp(t *testing.T) {
 	// If there's no timestamp, it's just:
 	// metric_name 1
 
-	lines := strings.Split(output, "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(output, "\n")
+	for line := range lines {
 		// Skip empty lines, comments, and TYPE/HELP lines
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue

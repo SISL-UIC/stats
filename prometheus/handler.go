@@ -45,7 +45,7 @@ type Handler struct {
 	// If nil, stats.Buckets is used instead.
 	Buckets stats.HistogramBuckets
 
-	opcount uint64
+	opcount atomic.Uint64
 	metrics metricStore
 }
 
@@ -93,7 +93,7 @@ func (h *Handler) HandleMeasures(mtime time.Time, measures ...stats.Measure) {
 	// Every 10K updates we cleanup the metric store of outdated entries to
 	// having memory leaks if the program has generated metrics for a pair of
 	// metric name and labels that won't be seen again.
-	if (atomic.AddUint64(&h.opcount, 1) % 10000) == 0 {
+	if (h.opcount.Add(1) % 10000) == 0 {
 		h.metrics.cleanup(time.Now().Add(-h.timeout()))
 	}
 }
@@ -165,7 +165,7 @@ func (h *Handler) WriteStats(w io.Writer) {
 }
 
 func acceptEncoding(accept, check string) bool {
-	for _, coding := range strings.Split(accept, ",") {
+	for coding := range strings.SplitSeq(accept, ",") {
 		if coding = strings.TrimSpace(coding); strings.HasPrefix(coding, check) {
 			return true
 		}
@@ -178,7 +178,7 @@ type handleMetricCache struct {
 }
 
 var handleMetricPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return &handleMetricCache{labels: make(labels, 0, 8)}
 	},
 }

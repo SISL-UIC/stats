@@ -2,7 +2,7 @@ package procstats
 
 import "fmt"
 
-func convertPanicToError(v interface{}) (err error) {
+func convertPanicToError(v any) (err error) {
 	if v != nil {
 		switch e := v.(type) {
 		case error:

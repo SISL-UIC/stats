@@ -4,7 +4,7 @@ package grafanatest
 // which captures the values passed to its method calls.
 type SearchResponse struct {
 	Targets []string
-	Values  []interface{}
+	Values  []any
 }
 
 // WriteTarget satisfies the grafana.SearchResponse interface.
@@ -13,7 +13,7 @@ func (res *SearchResponse) WriteTarget(target string) {
 }
 
 // WriteTargetValue satisfies the grafana.SearchResponse interface.
-func (res *SearchResponse) WriteTargetValue(target string, value interface{}) {
+func (res *SearchResponse) WriteTargetValue(target string, value any) {
 	res.Targets = append(res.Targets, target)
 	res.Values = append(res.Values, value)
 }

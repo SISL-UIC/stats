@@ -1,5 +1,10 @@
 # History
 
+### v5.9.0 (Unreleased)
+
+Apply 'go fix ./...' on the codebase. Several references to interface{} have
+been replaced by `any`; there should be no API or performance differences.
+
 ### v5.8.0 (December 15, 2025)
 
 When reporting go/stats versions, ensure that any user provided tags are

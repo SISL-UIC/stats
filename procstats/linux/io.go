@@ -15,7 +15,7 @@ func readFile(path string) string {
 	return string(b)
 }
 
-func readProcFile(who interface{}, what string) string {
+func readProcFile(who any, what string) string {
 	return readFile(procPath(who, what))
 }
 
@@ -33,7 +33,7 @@ func parseInt(s string) int64 {
 	return i
 }
 
-func procPath(who interface{}, what string) string {
+func procPath(who any, what string) string {
 	return filepath.Join("/proc", fmt.Sprint(who), what)
 }
 

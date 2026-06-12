@@ -12,8 +12,8 @@ import (
 func TestMustValueOf(t *testing.T) {
 	tests := []struct {
 		name  string
-		in    interface{}
-		out   interface{}
+		in    any
+		out   any
 		panic bool
 	}{
 		{
@@ -51,8 +51,8 @@ func TestValueOfIdentity(t *testing.T) {
 
 func TestValueOf(t *testing.T) {
 	tests := []struct {
-		in  interface{}
-		out interface{}
+		in  any
+		out any
 	}{
 		{nil, nil},
 		{true, true},

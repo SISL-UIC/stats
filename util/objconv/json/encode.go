@@ -29,7 +29,7 @@ func NewPrettyStreamEncoder(w io.Writer) *objconv.StreamEncoder {
 }
 
 // Marshal writes the JSON representation of v to a byte slice returned in b.
-func Marshal(v interface{}) (b []byte, err error) {
+func Marshal(v any) (b []byte, err error) {
 	m := marshalerPool.Get().(*marshaler)
 	m.b.Truncate(0)
 
@@ -43,7 +43,7 @@ func Marshal(v interface{}) (b []byte, err error) {
 }
 
 var marshalerPool = sync.Pool{
-	New: func() interface{} { return newMarshaler() },
+	New: func() any { return newMarshaler() },
 }
 
 type marshaler struct {

@@ -19,7 +19,7 @@ func NewStreamDecoder(r io.Reader) *objconv.StreamDecoder {
 }
 
 // Unmarshal decodes a JSON representation of v from b.
-func Unmarshal(b []byte, v interface{}) error {
+func Unmarshal(b []byte, v any) error {
 	u := unmarshalerPool.Get().(*unmarshaler)
 	u.reset(b)
 
@@ -31,7 +31,7 @@ func Unmarshal(b []byte, v interface{}) error {
 }
 
 var unmarshalerPool = sync.Pool{
-	New: func() interface{} { return newUnmarshaler() },
+	New: func() any { return newUnmarshaler() },
 }
 
 type unmarshaler struct {

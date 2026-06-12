@@ -101,32 +101,32 @@ func (e *Engine) IncrAt(time time.Time, name string, tags ...Tag) {
 }
 
 // Add increments by value the counter identified by name and tags.
-func (e *Engine) Add(name string, value interface{}, tags ...Tag) {
+func (e *Engine) Add(name string, value any, tags ...Tag) {
 	e.measure(time.Now(), name, value, Counter, tags...)
 }
 
 // AddAt increments by value the counter identified by name and tags.
-func (e *Engine) AddAt(t time.Time, name string, value interface{}, tags ...Tag) {
+func (e *Engine) AddAt(t time.Time, name string, value any, tags ...Tag) {
 	e.measure(t, name, value, Counter, tags...)
 }
 
 // Set sets to value the gauge identified by name and tags.
-func (e *Engine) Set(name string, value interface{}, tags ...Tag) {
+func (e *Engine) Set(name string, value any, tags ...Tag) {
 	e.measure(time.Now(), name, value, Gauge, tags...)
 }
 
 // SetAt sets to value the gauge identified by name and tags.
-func (e *Engine) SetAt(t time.Time, name string, value interface{}, tags ...Tag) {
+func (e *Engine) SetAt(t time.Time, name string, value any, tags ...Tag) {
 	e.measure(t, name, value, Gauge, tags...)
 }
 
 // Observe reports value for the histogram identified by name and tags.
-func (e *Engine) Observe(name string, value interface{}, tags ...Tag) {
+func (e *Engine) Observe(name string, value any, tags ...Tag) {
 	e.measure(time.Now(), name, value, Histogram, tags...)
 }
 
 // ObserveAt reports value for the histogram identified by name and tags.
-func (e *Engine) ObserveAt(t time.Time, name string, value interface{}, tags ...Tag) {
+func (e *Engine) ObserveAt(t time.Time, name string, value any, tags ...Tag) {
 	e.measure(t, name, value, Histogram, tags...)
 }
 
@@ -198,12 +198,12 @@ func (e *Engine) reportVersionOnce() {
 	})
 }
 
-func (e *Engine) measure(t time.Time, name string, value interface{}, ftype FieldType, tags ...Tag) {
+func (e *Engine) measure(t time.Time, name string, value any, ftype FieldType, tags ...Tag) {
 	e.reportVersionOnce()
 	e.measureOne(t, name, value, ftype, tags...)
 }
 
-func (e *Engine) measureOne(t time.Time, name string, value interface{}, ftype FieldType, tags ...Tag) {
+func (e *Engine) measureOne(t time.Time, name string, value any, ftype FieldType, tags ...Tag) {
 	name, field := splitMeasureField(name)
 	mp := measureArrayPool.Get().(*[1]Measure)
 
@@ -236,18 +236,18 @@ func (e *Engine) makeName(name string) string {
 }
 
 var measureArrayPool = sync.Pool{
-	New: func() interface{} { return new([1]Measure) },
+	New: func() any { return new([1]Measure) },
 }
 
 // Report calls ReportAt with time.Now() as first argument.
-func (e *Engine) Report(metrics interface{}, tags ...Tag) {
+func (e *Engine) Report(metrics any, tags ...Tag) {
 	e.ReportAt(time.Now(), metrics, tags...)
 }
 
 // ReportAt reports a set of metrics for a given time. The metrics must be of
 // type struct, pointer to struct, or a slice or array to one of those. See
 // MakeMeasures for details about how to make struct types exposing metrics.
-func (e *Engine) ReportAt(t time.Time, metrics interface{}, tags ...Tag) {
+func (e *Engine) ReportAt(t time.Time, metrics any, tags ...Tag) {
 	e.reportVersionOnce()
 	var tb *tagsBuffer
 
@@ -321,42 +321,42 @@ func IncrAt(time time.Time, name string, tags ...Tag) {
 }
 
 // Add increments by value the counter identified by name and tags.
-func Add(name string, value interface{}, tags ...Tag) {
+func Add(name string, value any, tags ...Tag) {
 	DefaultEngine.Add(name, value, tags...)
 }
 
 // AddAt increments by value the counter identified by name and tags.
-func AddAt(time time.Time, name string, value interface{}, tags ...Tag) {
+func AddAt(time time.Time, name string, value any, tags ...Tag) {
 	DefaultEngine.AddAt(time, name, value, tags...)
 }
 
 // Set sets to value the gauge identified by name and tags.
-func Set(name string, value interface{}, tags ...Tag) {
+func Set(name string, value any, tags ...Tag) {
 	DefaultEngine.Set(name, value, tags...)
 }
 
 // SetAt sets to value the gauge identified by name and tags.
-func SetAt(time time.Time, name string, value interface{}, tags ...Tag) {
+func SetAt(time time.Time, name string, value any, tags ...Tag) {
 	DefaultEngine.SetAt(time, name, value, tags...)
 }
 
 // Observe reports value for the histogram identified by name and tags.
-func Observe(name string, value interface{}, tags ...Tag) {
+func Observe(name string, value any, tags ...Tag) {
 	DefaultEngine.Observe(name, value, tags...)
 }
 
 // ObserveAt reports value for the histogram identified by name and tags.
-func ObserveAt(time time.Time, name string, value interface{}, tags ...Tag) {
+func ObserveAt(time time.Time, name string, value any, tags ...Tag) {
 	DefaultEngine.ObserveAt(time, name, value, tags...)
 }
 
 // Report is a helper function that delegates to DefaultEngine.
-func Report(metrics interface{}, tags ...Tag) {
+func Report(metrics any, tags ...Tag) {
 	DefaultEngine.Report(metrics, tags...)
 }
 
 // ReportAt is a helper function that delegates to DefaultEngine.
-func ReportAt(time time.Time, metrics interface{}, tags ...Tag) {
+func ReportAt(time time.Time, metrics any, tags ...Tag) {
 	DefaultEngine.ReportAt(time, metrics, tags...)
 }
 
