@@ -9,7 +9,7 @@ func TestMakeStructField(t *testing.T) {
 	type A struct{ A int }
 	type a struct{ a int }
 	type B struct{ A }
-	type b struct{ a }
+	type b struct{ a } //nolint:unused // embedded unexported field is read via reflection below
 
 	tests := []struct {
 		s reflect.StructField
