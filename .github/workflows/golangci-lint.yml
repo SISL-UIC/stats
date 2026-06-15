@@ -6,7 +6,7 @@ name: golangci-lint
       - v*
     paths:
       - '**.go'
-      - .golangci.yml
+      - .golangci.json
       - .github/workflows/golangci-lint.yml
   pull_request:
     branches:
