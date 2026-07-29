@@ -5,11 +5,12 @@ import (
 	"log"
 	"time"
 
-	"github.com/segmentio/stats/v5"
-	"github.com/segmentio/stats/v5/otlp"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"google.golang.org/grpc/credentials/insecure"
+
+	"github.com/segmentio/stats/v5"
+	"github.com/segmentio/stats/v5/otlp"
 )
 
 // Example_gRPC demonstrates using the OpenTelemetry SDK handler with gRPC transport.

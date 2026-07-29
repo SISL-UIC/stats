@@ -23,10 +23,10 @@ type captureCollector struct {
 
 	mu       sync.Mutex
 	requests []*collectormetricspb.ExportMetricsServiceRequest
-	received chan struct{} // signalled on every Export
+	received chan struct{} // signaled on every Export
 }
 
-func (c *captureCollector) Export(ctx context.Context, req *collectormetricspb.ExportMetricsServiceRequest) (*collectormetricspb.ExportMetricsServiceResponse, error) {
+func (c *captureCollector) Export(_ context.Context, req *collectormetricspb.ExportMetricsServiceRequest) (*collectormetricspb.ExportMetricsServiceResponse, error) {
 	c.mu.Lock()
 	c.requests = append(c.requests, req)
 	c.mu.Unlock()

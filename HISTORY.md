@@ -2,6 +2,10 @@
 
 ### v5.9.0 (Unreleased)
 
+**The minimum supported Go version is now 1.25.** The OpenTelemetry SDK and gRPC
+both declare `go 1.25.0`, and the `otlp` package lives in the main module, so
+the whole module requires 1.25.
+
 Apply 'go fix ./...' on the codebase. Several references to interface{} have
 been replaced by `any`; there should be no API or performance differences.
 

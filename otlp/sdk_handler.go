@@ -18,13 +18,13 @@ import (
 	"github.com/segmentio/stats/v5"
 )
 
-// Protocol defines the transport protocol for OTLP export
+// Protocol defines the transport protocol for OTLP export.
 type Protocol string
 
 const (
-	// ProtocolGRPC uses gRPC transport
+	// ProtocolGRPC uses gRPC transport.
 	ProtocolGRPC Protocol = "grpc"
-	// ProtocolHTTPProtobuf uses HTTP with protobuf encoding
+	// ProtocolHTTPProtobuf uses HTTP with protobuf encoding.
 	ProtocolHTTPProtobuf Protocol = "http/protobuf"
 )
 
@@ -123,12 +123,11 @@ func defaultResource(ctx context.Context) (*resource.Resource, error) {
 //	defer handler.Shutdown(ctx)
 //	stats.Register(handler)
 type SDKHandler struct {
-	provider      *sdkmetric.MeterProvider
-	meter         otelmetric.Meter
-	shutdownCtx   context.Context // Context for shutdown operations only
-	mu            sync.RWMutex
-	instruments   map[string]instrument
-	resourceAttrs []attribute.KeyValue
+	provider    *sdkmetric.MeterProvider
+	meter       otelmetric.Meter
+	shutdownCtx context.Context // Context for shutdown operations only
+	mu          sync.RWMutex
+	instruments map[string]instrument
 }
 
 type instrument struct {
@@ -137,7 +136,7 @@ type instrument struct {
 	histogram otelmetric.Float64Histogram
 }
 
-// SDKConfig contains configuration for the OpenTelemetry SDK handler
+// SDKConfig contains configuration for the OpenTelemetry SDK handler.
 type SDKConfig struct {
 	// Protocol specifies the transport protocol (grpc or http/protobuf).
 	// If empty, the OTEL_EXPORTER_OTLP_METRICS_PROTOCOL and
@@ -350,8 +349,8 @@ func NewSDKHandlerFromEnv(ctx context.Context) (*SDKHandler, error) {
 	return NewSDKHandler(ctx, SDKConfig{})
 }
 
-// HandleMeasures implements stats.Handler
-func (h *SDKHandler) HandleMeasures(t time.Time, measures ...stats.Measure) {
+// HandleMeasures implements stats.Handler.
+func (h *SDKHandler) HandleMeasures(_ time.Time, measures ...stats.Measure) {
 	// Use background context for recording metrics to avoid context cancellation issues
 	// The shutdownCtx is only used for shutdown operations
 	ctx := context.Background()
@@ -376,12 +375,12 @@ func (h *SDKHandler) HandleMeasures(t time.Time, measures ...stats.Measure) {
 				h.mu.Unlock()
 			}
 
-			h.recordMetric(ctx, inst, field, metricName, attrs)
+			h.recordMetric(ctx, inst, field, attrs)
 		}
 	}
 }
 
-// createInstruments creates OTel instruments based on field type
+// createInstruments creates OTel instruments based on field type.
 func (h *SDKHandler) createInstruments(meter otelmetric.Meter, name string, fieldType stats.FieldType) instrument {
 	var inst instrument
 
@@ -412,8 +411,8 @@ func (h *SDKHandler) createInstruments(meter otelmetric.Meter, name string, fiel
 	return inst
 }
 
-// recordMetric records a metric value to the appropriate instrument
-func (h *SDKHandler) recordMetric(ctx context.Context, inst instrument, field stats.Field, metricName string, attrs []attribute.KeyValue) {
+// recordMetric records a metric value to the appropriate instrument.
+func (h *SDKHandler) recordMetric(ctx context.Context, inst instrument, field stats.Field, attrs []attribute.KeyValue) {
 	opts := otelmetric.WithAttributes(attrs...)
 
 	switch field.Type() {
@@ -435,7 +434,7 @@ func (h *SDKHandler) recordMetric(ctx context.Context, inst instrument, field st
 	}
 }
 
-// tagsToAttributes converts stats tags to OTel attributes
+// tagsToAttributes converts stats tags to OTel attributes.
 func (h *SDKHandler) tagsToAttributes(tags []stats.Tag) []attribute.KeyValue {
 	attrs := make([]attribute.KeyValue, len(tags))
 	for i, tag := range tags {
@@ -444,7 +443,7 @@ func (h *SDKHandler) tagsToAttributes(tags []stats.Tag) []attribute.KeyValue {
 	return attrs
 }
 
-// valueToInt64 converts stats.Value to int64 for counters
+// valueToInt64 converts stats.Value to int64 for counters.
 func (h *SDKHandler) valueToInt64(v stats.Value) int64 {
 	switch v.Type() {
 	case stats.Bool:
@@ -464,7 +463,7 @@ func (h *SDKHandler) valueToInt64(v stats.Value) int64 {
 	return 0
 }
 
-// valueToFloat64 converts stats.Value to float64 for gauges and histograms
+// valueToFloat64 converts stats.Value to float64 for gauges and histograms.
 func (h *SDKHandler) valueToFloat64(v stats.Value) float64 {
 	switch v.Type() {
 	case stats.Bool:
@@ -484,14 +483,14 @@ func (h *SDKHandler) valueToFloat64(v stats.Value) float64 {
 	return 0.0
 }
 
-// Flush implements stats.Flusher
+// Flush implements stats.Flusher.
 func (h *SDKHandler) Flush() {
 	if err := h.provider.ForceFlush(h.shutdownCtx); err != nil {
 		slog.Error("stats/otlp: failed to flush", "error", err)
 	}
 }
 
-// Shutdown gracefully shuts down the handler and exports any remaining metrics
+// Shutdown gracefully shuts down the handler and exports any remaining metrics.
 func (h *SDKHandler) Shutdown(ctx context.Context) error {
 	return h.provider.Shutdown(ctx)
 }

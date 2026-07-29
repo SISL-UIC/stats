@@ -183,7 +183,7 @@ func TestSDKHandler_ValueConversion(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(tc.name, func(*testing.T) {
 			handler.HandleMeasures(now, stats.Measure{
 				Name:   "conversion.test",
 				Fields: []stats.Field{stats.MakeField(tc.name, tc.value, tc.fieldType)},
