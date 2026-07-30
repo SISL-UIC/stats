@@ -1,10 +1,19 @@
 # History
 
-### v5.9.0 (Unreleased)
+### v5.10.0 (Unreleased)
 
-**The minimum supported Go version is now 1.25.** The OpenTelemetry SDK and gRPC
-both declare `go 1.25.0`, and the `otlp` package lives in the main module, so
-the whole module requires 1.25.
+**The minimum supported Go version is now 1.25.** The `otlp` package, previously
+its own nested module, has been folded back into `github.com/segmentio/stats/v5`
+so that `go test ./...`, `go build ./...`, and lint all cover it and dependency
+bumps only need to happen in one place. Because the OpenTelemetry SDK and gRPC
+both declare `go 1.25.0`, every consumer of `stats` now requires Go 1.25 and
+transitively pulls in the OTel SDK and gRPC, even if `otlp` is unused.
+
+`go get github.com/segmentio/stats/v5/otlp` is no longer needed (or valid) as a
+separate module fetch; `otlp` is available as soon as you depend on
+`github.com/segmentio/stats/v5`.
+
+### v5.9.0 (June 15, 2026)
 
 Apply 'go fix ./...' on the codebase. Several references to interface{} have
 been replaced by `any`; there should be no API or performance differences.
