@@ -1,6 +1,6 @@
 # History
 
-### v5.10.0 (Unreleased)
+### v5.10.0 (July 30, 2026)
 
 **The minimum supported Go version is now 1.25.** The `otlp` package, previously
 its own nested module, has been folded back into `github.com/segmentio/stats/v5`
